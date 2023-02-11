@@ -13,6 +13,7 @@ export default {
       search: "",
       toggleModal: false,
       selected_pokemon: [] as any,
+      item: [] as any,
     };
   },
 
@@ -37,6 +38,27 @@ export default {
         this.toggleModal = !this.toggleModal;
       });
     },
+    get_move_level(move: any) {
+      for (let version of move.version_group_details) {
+          if (
+            version.version_group.name == 'sword-shield' && version.move_learn_method.name != 'machine'
+            ) {
+            return version.level_learned_at;
+          }
+        }
+        return 0
+    },
+    filter_moves(pokemon: any) {
+      return pokemon.moves.filter((item: any) => {
+        let include = false;
+        for(let version of item.version_group_details){
+          if(version.version_group == 'sword-shield' && version.move_learn_method.name != 'machine'){
+            include = true;
+          }
+        }
+        return include
+      })
+    }
   },
   computed: {
     filtered_pokemons() {
@@ -48,9 +70,9 @@ export default {
 };
 </script>
 <template>
-  <v-app>
-    <v-container>
-      <v-container>
+  <div>
+    <div>
+      <div>
         <input
           v-model="search"
           class="
@@ -74,15 +96,15 @@ export default {
           type="text"
           name="search"
         />
-        <v-row>
-          <v-col
+        <div>
+          <div
             cols="2"
             v-for="pokemon in filtered_pokemons"
             :key="pokemon.name"
           >
-            <v-card @click="show_pokemon(get_id(pokemon))">
-              <v-container>
-                <v-row class="mx-0 flex justify-center">
+            <div @click="show_pokemon(get_id(pokemon))">
+              <div>
+                <div class="mx-0 flex justify-center">
                   <img
                     :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${get_id(
                       pokemon
@@ -90,13 +112,13 @@ export default {
                     :alt="pokemon.name"
                   />
                   <h2 class="text-center">{{ get_name(pokemon) }}</h2>
-                </v-row>
-              </v-container>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-container>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div>
       <div
         class="
@@ -109,18 +131,49 @@ export default {
         "
         v-if="toggleModal"
       >
-        <div class="relative h-screen mx-auto w-auto max-w-2xl z-50">
-          <div v-if="(selected_pokemon)" class="bg-white w-full rounded shadow-2xl flex flex-col">
-            <div class="text-2xl font-bold">Header Text</div>
-            <v-row>
-              <v-col cols="4">
-                <img
-                  :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selected_pokemon.id}.png`"
-                  :alt="selected_pokemon.name"
-                />
-              </v-col>
-            </v-row>
-            {{ selected_pokemon }}
+        <div class="relative mx-auto max-w-2xl z-50">
+          <div
+            v-if="selected_pokemon"
+            class="bg-white w-64 rounded shadow-2xl flex flex-col h-96"
+          >
+            <div class="text-2xl font-bold">
+              {{ get_name(selected_pokemon) }}
+            </div>
+            <div class="flex">
+              <img
+                :src="`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${selected_pokemon.id}.png`"
+                :alt="selected_pokemon.name"
+              />
+              <div
+                label
+                v-for="type in selected_pokemon.types"
+                :key="type.slot"
+                class="mr-1"
+              >
+                {{ type.type.name }}
+              </div>
+            </div>
+            <span
+              >Altura {{ selected_pokemon.height * 2.54 }} cm Peso
+              {{ (selected_pokemon.weight * 0.45359237).toFixed(0) }} kgs</span
+            >
+            <h2>Moves</h2>
+            <table class="table-fixed">
+              <thead>
+                <tr>
+                  <th>Level</th>
+                  <th>Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in filter_moves(selected_pokemon)" :key="item.move.name">
+                  <td>0</td>
+                  <td>{{item.move.name}}</td>
+                </tr>
+                  <td>{{ get_move_level(item)}}</td>
+                  <td>{{ item.move.name }}</td>
+              </tbody>
+            </table>
             <button
               class="
                 rounded
@@ -129,7 +182,7 @@ export default {
                 px-6
                 mt-1
                 py-2
-                w-2/12
+                w-32
                 m-auto
                 mb-3
               "
@@ -145,7 +198,7 @@ export default {
         ></div>
       </div>
     </div>
-  </v-app>
+  </div>
 </template>
 
 <style scoped>
