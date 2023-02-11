@@ -38,16 +38,6 @@ export default {
         this.toggleModal = !this.toggleModal;
       });
     },
-    get_move_level(move: any) {
-      for (let version of move.version_group_details) {
-          if (
-            version.version_group.name == 'sword-shield' && version.move_learn_method.name != 'machine'
-            ) {
-            return version.level_learned_at;
-          }
-        }
-        return 0
-    },
     filter_moves(pokemon: any) {
       return pokemon.moves.filter((item: any) => {
         let include = false;
@@ -134,7 +124,7 @@ export default {
         <div class="relative mx-auto max-w-2xl z-50">
           <div
             v-if="selected_pokemon"
-            class="bg-white w-64 rounded shadow-2xl flex flex-col h-96"
+            class="bg-white w-64 rounded shadow-2xl flex flex-col h-52"
           >
             <div class="text-2xl font-bold">
               {{ get_name(selected_pokemon) }}
@@ -157,23 +147,6 @@ export default {
               >Altura {{ selected_pokemon.height * 2.54 }} cm Peso
               {{ (selected_pokemon.weight * 0.45359237).toFixed(0) }} kgs</span
             >
-            <h2>Moves</h2>
-            <table class="table-fixed">
-              <thead>
-                <tr>
-                  <th>Level</th>
-                  <th>Name</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="item in filter_moves(selected_pokemon)" :key="item.move.name">
-                  <td>0</td>
-                  <td>{{item.move.name}}</td>
-                </tr>
-                  <td>{{ get_move_level(item)}}</td>
-                  <td>{{ item.move.name }}</td>
-              </tbody>
-            </table>
             <button
               class="
                 rounded
